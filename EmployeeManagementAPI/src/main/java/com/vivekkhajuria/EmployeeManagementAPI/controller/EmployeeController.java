@@ -5,9 +5,12 @@ import com.vivekkhajuria.EmployeeManagementAPI.entity.Employee;
 import com.vivekkhajuria.EmployeeManagementAPI.mapper.EmployeeMapper;
 import com.vivekkhajuria.EmployeeManagementAPI.service.EmployeeService;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController
@@ -21,8 +24,21 @@ public class EmployeeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EmployeeDto>> getAllEmployee(){
-        List<Employee> list = employeeService.getAllEmployees();
+    public ResponseEntity<List<EmployeeDto>> getAllEmployee(@RequestParam(required = false, defaultValue = "1") int pageNo,
+                                                            @RequestParam(required = false, defaultValue = "5") int pageSize,
+                                                            @RequestParam(required = false, defaultValue = "id") String sortBy,
+                                                            @RequestParam(required = false, defaultValue = "ASC") String sortDir,
+                                                            @RequestParam(required = false) String name,
+                                                            @RequestParam(required = false) String dept,
+                                                            @RequestParam(required = false) String email,
+                                                            @RequestParam(required = false) Long id){
+        Sort sort;
+        if(sortDir.equalsIgnoreCase("ASC")){
+            sort = Sort.by(sortBy).ascending();
+        } else{
+            sort = Sort.by(sortBy).descending();
+        }
+        List<Employee> list = employeeService.getAllEmployees(PageRequest.of(pageNo-1, pageSize, sort), id, name, email, dept);
         List<EmployeeDto> listDto = list.stream().map(EmployeeMapper::toDto).toList();
         return ResponseEntity.ok(listDto);
     }

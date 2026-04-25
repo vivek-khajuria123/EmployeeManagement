@@ -3,8 +3,13 @@ package com.vivekkhajuria.EmployeeManagementAPI.service.impl;
 import com.vivekkhajuria.EmployeeManagementAPI.entity.Employee;
 import com.vivekkhajuria.EmployeeManagementAPI.repository.EmployeeRepository;
 import com.vivekkhajuria.EmployeeManagementAPI.service.EmployeeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.vivekkhajuria.EmployeeManagementAPI.specification.EmployeeSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 @Service
@@ -17,8 +22,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+    public List<Employee> getAllEmployees(Pageable pageable, Long id, String name, String email, String dept) {
+        Specification<Employee> specification = EmployeeSpecification.getSpecification(id, name, email, dept);
+        return employeeRepository.findAll(specification,pageable).getContent();
     }
 
 
